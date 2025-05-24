@@ -1,7 +1,7 @@
 :root {
-    --primary-color: #4CAF50; /* Green */
+    --primary-color: #4CAF50; 
     --primary-dark-color: #45a049;
-    --secondary-color: #f4f4f4; /* Light Gray */
+    --secondary-color: #f4f4f4; 
     --text-color: #333;
     --border-color: #ddd;
     --button-bg-hover: #e0e0e0;
@@ -47,12 +47,12 @@ h1, h2, h3 {
 .main-content {
     display: flex;
     gap: 25px;
-    flex-wrap: wrap; /* Allows wrapping on smaller screens */
+    flex-wrap: wrap; 
 }
 
 .story-editor-section {
-    flex: 3; /* Takes up more space */
-    min-width: 450px; /* Minimum width for editor */
+    flex: 3; 
+    min-width: 450px; 
 }
 
 #storyEditor {
@@ -64,12 +64,12 @@ h1, h2, h3 {
     font-size: 1rem;
     line-height: 1.8;
     resize: vertical;
-    box-sizing: border-box; /* Include padding in width */
+    box-sizing: border-box;
 }
 
 .ai-assistant-panel {
-    flex: 2; /* Takes up less space */
-    min-width: 300px; /* Minimum width for panel */
+    flex: 2; 
+    min-width: 300px; 
     background-color: var(--secondary-color);
     padding: 20px;
     border-radius: 8px;
@@ -93,8 +93,8 @@ button {
     cursor: pointer;
     font-size: 0.95rem;
     transition: background-color 0.3s ease;
-    flex-grow: 1; /* Allow buttons to grow */
-    min-width: 120px; /* Ensure buttons are not too small */
+    flex-grow: 1; 
+    min-width: 120px; /
 }
 
 button:hover:not(:disabled) {
@@ -121,8 +121,8 @@ button:disabled {
     margin-bottom: 15px;
     font-size: 0.9rem;
     color: #555;
-    overflow-y: auto; /* Enable scrolling for long suggestions */
-    max-height: 250px; /* Limit height */
+    overflow-y: auto;
+    max-height: 250px;
 }
 
 .suggestion-area p {
@@ -136,7 +136,7 @@ button:disabled {
 
 .insert-button {
     width: 100%;
-    background-color: #007bff; /* Blue */
+    background-color: #007bff;
     margin-top: 10px;
 }
 
@@ -162,21 +162,21 @@ button:disabled {
     margin-top: 10px;
 }
 
-/* Responsive Design */
+
 @media (max-width: 992px) {
     .main-content {
-        flex-direction: column; /* Stack panels vertically */
+        flex-direction: column;
     }
 
     .story-editor-section,
     .ai-assistant-panel {
-        flex: none; /* Remove flex growing */
-        width: 100%; /* Take full width */
-        min-width: unset; /* Remove min-width constraint */
+        flex: none; 
+        width: 100%; 
+        min-width: unset; 
     }
 
     .ai-assistant-panel {
-        margin-top: 25px; /* Add some space when stacked */
+        margin-top: 25px; 
     }
 }
 

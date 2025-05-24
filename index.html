@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>DreamWeaver — AI-Assisted Full Story Generator</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css" />
 </head>
 <body>
     <div class="container">
@@ -13,7 +13,10 @@
 
         <div class="main-content">
             <div class="story-editor-section">
-                <textarea id="storyEditor" placeholder="Start writing your story here, or use the AI Assistant to generate one..."></textarea>
+                <textarea
+                    id="storyEditor"
+                    placeholder="Start writing your story here, or use the AI Assistant to generate one..."
+                ></textarea>
             </div>
 
             <div class="ai-assistant-panel">
@@ -34,9 +37,25 @@
                     <div id="aiSuggestionDisplay" class="suggestion-area">
                         <p class="placeholder-text">Suggestions will appear here.</p>
                     </div>
-                    <button id="insertSuggestionBtn" class="insert-button" style="display: none;">Insert Suggestion</button>
-                    <div id="loadingIndicator" class="loading-indicator" style="display: none;">Generating...</div>
-                    <div id="errorDisplay" class="error-display" style="display: none;"></div>
+                    <button
+                        id="insertSuggestionBtn"
+                        class="insert-button"
+                        style="display: none;"
+                    >
+                        Insert Suggestion
+                    </button>
+                    <div
+                        id="loadingIndicator"
+                        class="loading-indicator"
+                        style="display: none;"
+                    >
+                        Generating...
+                    </div>
+                    <div
+                        id="errorDisplay"
+                        class="error-display"
+                        style="display: none;"
+                    ></div>
                 </div>
             </div>
         </div>

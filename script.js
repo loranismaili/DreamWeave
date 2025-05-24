@@ -13,7 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let currentSuggestion = '';
 
-    // Function to show/hide loading indicator and disable/enable buttons
     function setLoading(isLoading) {
         loadingIndicator.style.display = isLoading ? 'block' : 'none';
         generateFullStoryBtn.disabled = isLoading;
@@ -25,7 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
         insertSuggestionBtn.disabled = isLoading;
     }
 
-    // Function to display AI suggestion
     function displaySuggestion(suggestion) {
         currentSuggestion = suggestion;
         aiSuggestionDisplay.innerHTML = `<p>${suggestion.replace(/\n/g, '<br>')}</p>`;
@@ -33,7 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
         insertSuggestionBtn.style.display = 'block';
     }
 
-    // Function to clear suggestion display
     function clearSuggestion() {
         currentSuggestion = '';
         aiSuggestionDisplay.innerHTML = '<p class="placeholder-text">Suggestions will appear here.</p>';
@@ -42,18 +39,16 @@ document.addEventListener('DOMContentLoaded', () => {
         errorDisplay.textContent = '';
     }
 
-    // Function to display error message
     function displayError(message) {
         errorDisplay.style.display = 'block';
         errorDisplay.textContent = message;
-        clearSuggestion(); // Clear any previous suggestion
+        clearSuggestion();
     }
 
-    // Function to send requests to the PHP backend
     async function sendRequest(type, context = '') {
         setLoading(true);
         clearSuggestion();
-        errorDisplay.style.display = 'none'; // Hide previous errors
+        errorDisplay.style.display = 'none';
 
         try {
             const response = await fetch('api_proxy.php', {
@@ -67,12 +62,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
             });
 
+            const responseText = await response.text();
+            console.log('Raw response text:', responseText);
+
+            const data = JSON.parse(responseText);
+
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                throw new Error(data.error || `HTTP error! status: ${response.status}`);
             }
 
-            const data = await response.json();
             if (data.success) {
                 displaySuggestion(data.suggestion);
             } else {
@@ -86,11 +84,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Event Listeners for AI Assistant buttons
     generateFullStoryBtn.addEventListener('click', () => {
-        const prompt = prompt('Enter a prompt or theme for your full story (e.g., "A lone astronaut discovers a hidden civilization on Mars"):');
-        if (prompt) {
-            sendRequest('full_story', prompt.substring(0, 1000)); // Max 1000 chars for prompt
+        const userPrompt = prompt('Enter a prompt or theme for your full story (e.g., "A lone astronaut discovers a hidden civilization on Mars"):');
+        if (userPrompt) {
+            sendRequest('full_story', userPrompt.substring(0, 1000));
         }
     });
 
@@ -101,7 +98,6 @@ document.addEventListener('DOMContentLoaded', () => {
     nextParagraphBtn.addEventListener('click', () => {
         const currentStory = storyEditor.value.trim();
         if (currentStory.length > 0) {
-            // Send last 500 characters as context
             sendRequest('next_paragraph', currentStory.slice(-500));
         } else {
             displayError('Please write some text in the editor to generate the next paragraph.');
@@ -127,7 +123,6 @@ document.addEventListener('DOMContentLoaded', () => {
         sendRequest('setting_detail', currentStory.slice(-500));
     });
 
-    // Event Listener for Insert Suggestion button
     insertSuggestionBtn.addEventListener('click', () => {
         if (currentSuggestion) {
             const cursorPosition = storyEditor.selectionStart;
@@ -136,15 +131,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             storyEditor.value = textBefore + currentSuggestion + textAfter;
 
-            // Set cursor after the inserted text
             storyEditor.selectionStart = storyEditor.selectionEnd = cursorPosition + currentSuggestion.length;
-            storyEditor.focus(); // Keep focus on the editor
+            storyEditor.focus();
 
-            clearSuggestion(); // Clear the suggestion panel after insertion
+            clearSuggestion();
         }
     });
 
-    // Initialize UI state
     clearSuggestion();
     setLoading(false);
 });
