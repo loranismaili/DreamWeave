@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
         aiSuggestionDisplay.innerHTML = `<p>${suggestion.replace(/\n/g, '<br>')}</p>`;
         aiSuggestionDisplay.classList.remove('placeholder-text');
         insertSuggestionBtn.style.display = 'block';
+        errorDisplay.style.display = 'none';
     }
 
     function clearSuggestion() {
@@ -53,24 +54,16 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch('api_proxy.php', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    type: type,
-                    context: context
-                })
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({type, context})
             });
 
-            const responseText = await response.text();
-            console.log('Raw response text:', responseText);
-
-            const data = JSON.parse(responseText);
-
             if (!response.ok) {
-                throw new Error(data.error || `HTTP error! status: ${response.status}`);
+                const errorData = await response.json();
+                throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
             }
 
+            const data = await response.json();
             if (data.success) {
                 displaySuggestion(data.suggestion);
             } else {
@@ -125,19 +118,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     insertSuggestionBtn.addEventListener('click', () => {
         if (currentSuggestion) {
-            const cursorPosition = storyEditor.selectionStart;
-            const textBefore = storyEditor.value.substring(0, cursorPosition);
-            const textAfter = storyEditor.value.substring(storyEditor.selectionEnd, storyEditor.value.length);
-
-            storyEditor.value = textBefore + currentSuggestion + textAfter;
-
-            storyEditor.selectionStart = storyEditor.selectionEnd = cursorPosition + currentSuggestion.length;
-            storyEditor.focus();
-
+            storyEditor.value += "\n\n" + currentSuggestion;
             clearSuggestion();
         }
     });
 
     clearSuggestion();
-    setLoading(false);
 });

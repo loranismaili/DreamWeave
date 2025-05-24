@@ -1,23 +1,22 @@
 <?php
 header('Content-Type: application/json');
 
-
+// Read JSON input
 $input = json_decode(file_get_contents('php://input'), true);
 $type = $input['type'] ?? '';
 $context = $input['context'] ?? '';
 
-
+// Limit context length
 $context = substr($context, 0, 1000);
 
+// Put your Hugging Face API token here:
+$apiToken = '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';
 
-$apiKey = getenv('keyyyyyyyyyy');
-
-
-
-
-$apiUrl = "https://api-inference.huggingface.co/models/EleutherAI/gpt-neo-2.7B";
+// Put your Hugging Face model inference URL here:
+$apiUrl = 'https://api-inference.huggingface.co/models/distilbert/distilgpt2';
 
 
+// Build prompt based on type
 switch ($type) {
     case 'full_story':
         $userPrompt = !empty($context) ? $context : "Write a compelling story.";
@@ -53,7 +52,6 @@ switch ($type) {
         exit;
 }
 
-
 $postData = [
     'inputs' => $prompt,
     'parameters' => [
@@ -62,7 +60,7 @@ $postData = [
     ],
 ];
 
-
+// Initialize cURL
 $ch = curl_init($apiUrl);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_POST, true);
@@ -72,26 +70,45 @@ curl_setopt($ch, CURLOPT_HTTPHEADER, [
     "Content-Type: application/json"
 ]);
 
+// Execute the request
 $response = curl_exec($ch);
-$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-$error = curl_error($ch);
-curl_close($ch);
 
+// Check for cURL errors
 if ($response === false) {
+    $error = curl_error($ch);
+    curl_close($ch);
     echo json_encode(['success' => false, 'error' => 'Request failed: ' . $error]);
     exit;
 }
 
+$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+curl_close($ch);
+
+// Save raw API response for debugging (optional, remove if you want)
+// file_put_contents('hf_response_debug.txt', $response);
+
 if ($httpCode !== 200) {
-    echo json_encode(['success' => false, 'error' => "Hugging Face API error: HTTP $httpCode"]);
+    echo json_encode(['success' => false, 'error' => "Hugging Face API error: HTTP $httpCode", 'raw_response' => $response]);
     exit;
 }
 
+// Decode JSON response
 $data = json_decode($response, true);
 
+if (!$data) {
+    echo json_encode(['success' => false, 'error' => 'Failed to decode JSON response.', 'raw_response' => $response]);
+    exit;
+}
+
+// Check expected response format
 if (isset($data[0]['generated_text'])) {
     echo json_encode(['success' => true, 'suggestion' => trim($data[0]['generated_text'])]);
 } else {
-    echo json_encode(['success' => false, 'error' => 'Unexpected API response structure.']);
+    // If the structure is different, return full response for debugging
+    echo json_encode([
+        'success' => false,
+        'error' => 'Unexpected API response structure.',
+        'raw_response' => $data
+    ]);
 }
 ?>
