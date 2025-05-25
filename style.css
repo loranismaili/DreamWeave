@@ -349,8 +349,12 @@ body[data-theme="dark"] .btn-icon:hover { /* Dark mode specific hover */
 /* Inspiration Cards */
 .inspiration-cards {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-sm);
+    /* --- MODIFIED CODE START --- */
+    /* Changed from repeat(3, 1fr) to 1fr to stack items vertically */
+    grid-template-columns: 1fr;
+    /* Adjusted gap for better vertical spacing when stacked */
+    gap: var(--space-md);
+    /* --- MODIFIED CODE END --- */
 }
 
 .inspiration-card {
