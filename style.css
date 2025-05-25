@@ -1,196 +1,808 @@
-:root {
-    --primary-color: #4CAF50; 
-    --primary-dark-color: #45a049;
-    --secondary-color: #f4f4f4; 
-    --text-color: #333;
-    --border-color: #ddd;
-    --button-bg-hover: #e0e0e0;
-    --error-color: #f44336;
+:root { /* Removed the leading semicolon - this was a minor syntax error. */
+    /* Color Palette */
+    --primary: #5E35B1;
+    --primary-light: #7E57C2;
+    --primary-dark: #4527A0;
+    --secondary: #FF7043;
+    --accent: #00ACC1;
+    --text-primary: #2D3748;
+    --text-secondary: #4A5568;
+    --bg-primary: #FAFAFA;
+    --bg-secondary: #FFFFFF;
+    --border-color: #E2E8F0;
+    --success: #48BB78;
+    --warning: #ED8936;
+    --error: #F56565;
+
+    /* Dark Mode Colors */
+    --dark-primary: #7C4DFF;
+    --dark-primary-light: #9575CD;
+    --dark-primary-dark: #673AB7;
+    --dark-bg-primary: #1A202C;
+    --dark-bg-secondary: #2D3748;
+    --dark-text-primary: #F7FAFC;
+    --dark-text-secondary: #E2E8F0;
+    --dark-border-color: #4A5568;
+
+    /* Spacing */
+    --space-xxs: 0.25rem;
+    --space-xs: 0.5rem;
+    --space-sm: 0.75rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+    --space-xxl: 3rem;
+
+    /* Typography */
+    --font-heading: 'Playfair Display', serif;
+    --font-body: 'Source Sans Pro', sans-serif;
+    --text-base: 1rem;
+    --text-sm: 0.875rem;
+    --text-lg: 1.125rem;
+    --text-xl: 1.25rem;
+    --text-2xl: 1.5rem;
+    --text-3xl: 1.875rem;
+    --text-4xl: 2.25rem;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+    --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+    --shadow-xl: 0 20px 50px rgba(0,0,0,0.15);
+
+    /* Transitions */
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
 }
 
-body {
-    font-family: Arial, sans-serif;
-    line-height: 1.6;
+/* Base Styles */
+* {
     margin: 0;
-    padding: 20px;
-    background-color: #f9f9f9;
-    color: var(--text-color);
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    min-height: 100vh;
-}
-
-.container {
-    background: #fff;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    max-width: 1200px;
-    width: 100%;
-}
-
-h1, h2, h3 {
-    color: var(--primary-color);
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.tagline {
-    text-align: center;
-    color: #666;
-    margin-top: -10px;
-    margin-bottom: 30px;
-    font-style: italic;
-}
-
-.main-content {
-    display: flex;
-    gap: 25px;
-    flex-wrap: wrap; 
-}
-
-.story-editor-section {
-    flex: 3; 
-    min-width: 450px; 
-}
-
-#storyEditor {
-    width: 100%;
-    min-height: 500px;
-    padding: 15px;
-    border: 1px solid var(--border-color);
-    border-radius: 5px;
-    font-size: 1rem;
-    line-height: 1.8;
-    resize: vertical;
+    padding: 0;
     box-sizing: border-box;
 }
 
-.ai-assistant-panel {
-    flex: 2; 
-    min-width: 300px; 
-    background-color: var(--secondary-color);
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+body {
+    font-family: var(--font-body);
+    color: var(--text-primary);
+    background-color: var(--bg-primary);
+    line-height: 1.6;
 }
 
-.button-group {
+body[data-theme="dark"] {
+    --primary: var(--dark-primary);
+    --primary-light: var(--dark-primary-light);
+    --primary-dark: var(--dark-primary-dark);
+    --bg-primary: var(--dark-bg-primary);
+    --bg-secondary: var(--dark-bg-secondary);
+    --text-primary: var(--dark-text-primary);
+    --text-secondary: var(--dark-text-secondary);
+    --border-color: var(--dark-border-color);
+}
+
+/* Layout */
+.app-container {
+    display: grid;
+    grid-template-columns: 280px 1fr 320px;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Distraction Free Mode - new class for body or app-container */
+.app-container.distraction-free .toolbar,
+.app-container.distraction-free .ai-panel {
+    display: none;
+}
+
+.app-container.distraction-free {
+    grid-template-columns: 1fr; /* Make editor take full width */
+}
+
+@media (max-width: 1200px) {
+    .app-container {
+        grid-template-columns: 240px 1fr;
+    }
+
+    .ai-panel {
+        position: fixed;
+        right: -100%;
+        top: 0;
+        width: 100%;
+        max-width: 400px;
+        height: 100vh;
+        z-index: 100;
+        transition: right var(--transition-normal);
+        box-shadow: var(--shadow-xl); /* Add shadow for fixed panel */
+    }
+
+    .ai-panel.active {
+        right: 0;
+    }
+    /* Hide the AI panel toggle button on larger screens */
+    .mobile-only {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .app-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+    }
+
+    .toolbar {
+        width: 100%;
+        height: auto;
+        padding: var(--space-md);
+        border-right: none; /* Remove right border when stacked */
+        border-bottom: 1px solid var(--border-color); /* Add bottom border */
+    }
+
+    .editor-container {
+        height: calc(100vh - 200px); /* Adjust height for mobile toolbar */
+    }
+
+    /* Show the AI panel toggle button on smaller screens */
+    .mobile-only {
+        display: flex; /* or block, depending on desired layout */
+    }
+}
+
+
+/* Toolbar */
+.toolbar {
+    background-color: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    padding: var(--space-lg);
     display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 15px;
+    flex-direction: column;
+    overflow-y: auto; /* Keep overflow-y for potential content, but we'll hide the scrollbar */
+    position: relative; /* Needed for absolute positioning of theme toggle if desired */
+    height: 100%; /* Ensure it takes full height for scrollbar to work */
+}
+
+/* Hide Scrollbar for Webkit (Chrome, Safari) */
+.toolbar::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide Scrollbar for Firefox */
+.toolbar {
+    scrollbar-width: none; /* Firefox */
+}
+
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-xl);
+    color: var(--primary);
+}
+
+.brand i {
+    font-size: var(--text-2xl);
+}
+
+.brand h1 {
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    font-weight: 700;
+}
+
+.tool-section {
+    margin-bottom: var(--space-xl);
+}
+
+.tool-section h3 {
+    font-size: var(--text-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-md);
+}
+
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
-}
-
-button {
-    background-color: var(--primary-color);
-    color: white;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 5px;
+    gap: var(--space-xs);
+    padding: var(--space-sm) var(--space-md);
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: var(--text-sm);
     cursor: pointer;
-    font-size: 0.95rem;
-    transition: background-color 0.3s ease;
-    flex-grow: 1; 
-    min-width: 120px; /
+    transition: all var(--transition-fast);
+    border: none;
 }
 
-button:hover:not(:disabled) {
-    background-color: var(--primary-dark-color);
+/* Specific styling for story action buttons */
+.btn-story-action {
+    padding: var(--space-md) var(--space-md); /* Make them a bit taller */
+    font-size: var(--text-base); /* Slightly larger font */
+    border-radius: 8px; /* More rounded */
+    box-shadow: var(--shadow-sm); /* Add subtle shadow */
 }
 
-button:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
+.btn-primary.btn-story-action {
+    background-color: var(--primary);
+    color: white;
+    width: 100%;
+    margin-bottom: var(--space-sm);
+}
+
+.btn-primary.btn-story-action:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-2px); /* More pronounced hover */
+    box-shadow: var(--shadow-md);
+}
+
+.btn-secondary.btn-story-action {
+    background-color: var(--bg-secondary); /* Ensure it's the secondary background */
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    width: 100%;
+    margin-bottom: var(--space-sm);
+}
+
+.btn-secondary.btn-story-action:hover {
+    background-color: var(--border-color);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+
+.btn-icon {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: var(--text-lg);
+    padding: var(--space-xs);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color var(--transition-fast), color var(--transition-fast); /* Add transitions */
+}
+
+.btn-icon:hover {
+    background-color: rgba(0,0,0,0.08); /* Slightly darker hover for light mode */
+    color: var(--primary); /* Hover color to primary */
+}
+body[data-theme="dark"] .btn-icon:hover { /* Dark mode specific hover */
+    background-color: rgba(255,255,255,0.1);
+    color: var(--dark-primary);
+}
+
+/* Re-add focus styles for accessibility */
+.btn-icon:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+    background-color: rgba(0,0,0,0.05); /* Keep some background on focus */
+}
+
+
+.btn-generate {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: white;
+    border: none;
+    padding: var(--space-md);
+    border-radius: 6px;
+    font-weight: 600;
+    width: 100%;
+    margin-bottom: var(--space-sm);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: all var(--transition-fast);
+}
+
+.btn-generate:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+/* New style for "Generate Full Story" button */
+.btn-full-story {
+    background-color: var(--secondary); /* Distinct color */
+    color: white;
+    padding: var(--space-md);
+    border-radius: 6px;
+    font-weight: 600;
+    width: 100%;
+    margin-bottom: var(--space-sm);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: all var(--transition-fast);
+}
+
+.btn-full-story:hover {
+    background-color: #E65100; /* Darker secondary on hover */
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+
+/* Styling for the Improve Current button */
+.btn-improve {
+    background-color: var(--accent); /* Using accent color for "Improve Current" */
+    color: white;
+    border: none; /* No border needed if background is solid */
+    padding: var(--space-md); /* Match generate button padding */
+    border-radius: 6px;
+    font-weight: 600;
+    width: 100%;
+    margin-bottom: var(--space-sm);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: all var(--transition-fast);
+}
+
+.btn-improve:hover {
+    background-color: #00838F; /* Darker accent on hover */
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+
+/* Inspiration Cards */
+.inspiration-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-sm);
+}
+
+.inspiration-card {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: var(--space-sm);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-align: center;
+    height: 80px; /* Fixed height for consistency */
+    width: 100%; /* Ensure it takes full width of its grid cell */
+    aspect-ratio: 1 / 1; /* Maintain aspect ratio if you want them square, or remove if height is enough */
+    box-shadow: var(--shadow-sm); /* Add subtle shadow */
+}
+
+.inspiration-card:hover {
+    background-color: var(--primary-light);
+    color: white;
+    border-color: var(--primary-light);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md); /* More pronounced shadow on hover */
+}
+
+.inspiration-card i {
+    font-size: var(--text-lg);
+    margin-bottom: var(--space-xs);
+}
+
+.inspiration-card span {
+    font-size: var(--text-xs);
+    white-space: nowrap; /* Prevent text wrapping if too long */
+    overflow: hidden; /* Hide overflow if text is too long */
+    text-overflow: ellipsis; /* Add ellipsis if text is cut off */
+}
+
+/* Stats */
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-sm);
+    background-color: var(--bg-primary);
+    padding: var(--space-sm);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    /* Ensure consistent height or minimum height if labels vary greatly */
+}
+
+.stat-value {
+    font-size: var(--text-xl);
+    font-weight: 700;
+    color: var(--primary);
+    white-space: nowrap; /* Prevent value wrapping */
+}
+
+.stat-label {
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align: center; /* Center labels for better alignment */
+    line-height: 1.2; /* Adjust line height if labels are two lines (e.g., "Char\nacters") */
+    min-height: 1.2em; /* Ensure consistent height for labels, even if single line */
+}
+
+/* Theme Toggle */
+.theme-toggle {
+    margin-top: auto; /* Pushes the theme toggle to the bottom */
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--border-color); /* Add a separator */
+    margin-top: auto; /* Push it to the bottom */
+    padding: var(--space-md); /* Add some padding */
+}
+
+#themeToggleBtn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: var(--text-sm);
+    width: 100%;
+    padding: var(--space-sm);
+    border-radius: 6px;
+    transition: all var(--transition-fast);
+}
+
+#themeToggleBtn:hover {
+    background-color: var(--primary-light); /* Hover uses primary light */
+    color: white; /* Text becomes white on hover */
+}
+/* Focus visible for accessibility */
+#themeToggleBtn:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* Editor */
+.editor-container {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-secondary);
+    overflow: hidden;
+}
+
+.editor-header {
+    padding: var(--space-md) var(--space-lg);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.title-input {
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    font-weight: 700;
+    border: none;
+    background: none;
+    color: var(--text-primary);
+    width: 100%;
+    padding: var(--space-xs) 0;
+}
+
+.title-input:focus {
+    outline: none;
+    border-bottom: 2px solid var(--primary);
+}
+/* Re-add focus styles for accessibility */
+.title-input:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+.editor-actions {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+.editor-content {
+    flex: 1;
+    padding: var(--space-lg);
+    overflow-y: auto;
+}
+
+#editor {
+    min-height: 100%;
+    outline: none;
+    font-size: var(--text-lg);
+    line-height: 1.8;
+    color: var(--text-primary);
+    /* Add padding for better text flow, if needed, or rely on .editor-content padding */
+    padding: 0;
+}
+
+#editor[data-placeholder]:empty:before {
+    content: attr(data-placeholder);
+    color: var(--text-secondary);
+    opacity: 0.5;
+    font-style: italic;
+}
+/* Re-add focus styles for accessibility */
+#editor:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+
+/* AI Panel */
+.ai-panel {
+    background-color: var(--bg-secondary);
+    border-left: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Prevent internal scrollbars if content is managed by ai-suggestions */
+}
+
+.ai-header {
+    padding: var(--space-md) var(--space-lg);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.ai-header h2 {
+    font-size: var(--text-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    color: var(--text-primary);
+    margin-bottom: var(--space-md);
+}
+
+.ai-header h2 i {
+    color: var(--accent);
+}
+
+.creativity-control {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.creativity-control label {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+}
+
+.creativity-control input[type="range"] {
+    flex: 1;
+}
+
+.creativity-control span {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--primary);
+    min-width: 30px;
+    text-align: right;
 }
 
 .ai-suggestions {
-    margin-top: 20px;
-    border-top: 1px solid var(--border-color);
-    padding-top: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-lg);
+    overflow-y: auto; /* Enable scrolling for suggestions content */
 }
 
-.suggestion-area {
-    background-color: #fff;
-    border: 1px solid var(--border-color);
-    border-radius: 5px;
-    min-height: 100px;
-    padding: 15px;
-    margin-bottom: 15px;
-    font-size: 0.9rem;
-    color: #555;
+.suggestion-display {
+    flex: 1;
+    background-color: var(--bg-primary);
+    border-radius: 8px;
+    padding: var(--space-md);
+    margin-bottom: var(--space-md);
     overflow-y: auto;
-    max-height: 250px;
+    min-height: 200px;
+    position: relative; /* For loading skeleton */
+    border: 1px solid var(--border-color); /* Add border for better visual separation */
 }
 
-.suggestion-area p {
-    margin: 0;
-}
-
-.placeholder-text {
-    color: #999;
-    font-style: italic;
-}
-
-.insert-button {
-    width: 100%;
-    background-color: #007bff;
-    margin-top: 10px;
-}
-
-.insert-button:hover:not(:disabled) {
-    background-color: #0056b3;
-}
-
-.loading-indicator {
+.empty-state {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     text-align: center;
-    padding: 10px;
-    font-weight: bold;
-    color: var(--primary-color);
+    color: var(--text-secondary);
 }
 
-.error-display {
+.empty-state i {
+    font-size: var(--text-2xl);
+    margin-bottom: var(--space-sm);
+    color: var(--primary-light);
+    opacity: 0.5;
+}
+
+.ai-actions {
+    margin-bottom: var(--space-md);
+    display: flex; /* Make buttons flex items */
+    flex-direction: column; /* Stack them vertically */
+    gap: var(--space-sm); /* Space between them */
+}
+
+/* Added style for suggestion action buttons to align them */
+.suggestion-action-buttons {
+    display: flex;
+    gap: var(--space-sm);
+    margin-top: var(--space-xs); /* Reduced space from generate buttons */
+    /* Remove previous margin-top and set it to 0 or var(--space-xs) */
+}
+.suggestion-action-buttons .btn-primary,
+.suggestion-action-buttons .btn-secondary {
+    width: auto; /* Override 100% width from general btn styles */
+    flex: 1;
+}
+
+
+.ai-quick-actions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-sm);
+}
+
+.quick-action {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: var(--space-sm);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-size: var(--text-xs);
+    height: 80px; /* Fixed height for consistency, similar to inspiration cards */
+    box-shadow: var(--shadow-sm); /* Add subtle shadow */
+}
+
+.quick-action:hover {
+    background-color: var(--primary-light);
+    color: white;
+    border-color: var(--primary-light);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.quick-action i {
+    font-size: var(--text-lg);
+    margin-bottom: var(--space-xs);
+}
+
+/* AI Loading */
+.ai-loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-normal);
+}
+
+.ai-loading.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.loading-content {
+    background-color: var(--bg-secondary);
+    padding: var(--space-xl);
+    border-radius: 8px;
     text-align: center;
-    padding: 10px;
-    color: var(--error-color);
-    font-weight: bold;
-    border: 1px solid var(--error-color);
-    background-color: rgba(255, 0, 0, 0.1);
-    border-radius: 5px;
-    margin-top: 10px;
+    max-width: 300px;
+    box-shadow: var(--shadow-xl);
 }
 
-
-@media (max-width: 992px) {
-    .main-content {
-        flex-direction: column;
-    }
-
-    .story-editor-section,
-    .ai-assistant-panel {
-        flex: none; 
-        width: 100%; 
-        min-width: unset; 
-    }
-
-    .ai-assistant-panel {
-        margin-top: 25px; 
-    }
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid var(--primary-light);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    margin: 0 auto var(--space-md);
+    animation: spin 1s linear infinite;
 }
 
-@media (max-width: 600px) {
-    .container {
-        padding: 20px;
-    }
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
 
-    h1 {
-        font-size: 1.8rem;
-    }
+/* Suggestion Content */
+.suggestion-item {
+    padding: var(--space-sm) 0;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: var(--space-sm);
+}
 
-    button {
-        font-size: 0.9rem;
-        padding: 10px 15px;
-    }
+.suggestion-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.suggestion-title {
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: var(--space-xs);
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.suggestion-text {
+    color: var(--text-primary);
+    line-height: 1.7;
+}
+
+.suggestion-meta {
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+    margin-top: var(--space-xs);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.suggestion-actions { /* Not used in this version, replaced by suggestion-action-buttons */
+    display: flex;
+    gap: var(--space-sm);
+    margin-top: var(--space-sm);
+}
+
+.suggestion-btn { /* Not used in this version */
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: var(--space-xs) var(--space-sm);
+    font-size: var(--text-xs);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.suggestion-btn:hover {
+    background-color: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+.suggestion-btn i { /* Not used in this version */
+    margin-right: var(--space-xs);
+}
+
+/* Error Message Style */
+.error-message {
+    background-color: var(--error);
+    color: white;
+    padding: var(--space-sm);
+    border-radius: 6px;
+    margin-bottom: var(--space-md);
+    font-size: var(--text-sm);
+    text-align: center;
+}
+
+/* Format Notification */
+.format-notification {
+    position: absolute;
+    bottom: var(--space-md);
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--success);
+    color: white;
+    padding: var(--space-sm) var(--space-md);
+    border-radius: 6px;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+    z-index: 999;
 }

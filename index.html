@@ -1,66 +1,153 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>DreamWeaver — AI-Assisted Full Story Generator</title>
-    <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DreamWeaver AI | Your Creative Writing Companion</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Source+Sans+Pro:wght@300;400;600&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
 </head>
 <body>
-    <div class="container">
-        <h1>DreamWeaver</h1>
-        <p class="tagline">Craft your stories with AI assistance.</p>
-
-        <div class="main-content">
-            <div class="story-editor-section">
-                <textarea
-                    id="storyEditor"
-                    placeholder="Start writing your story here, or use the AI Assistant to generate one..."
-                ></textarea>
+    <div class="app-container">
+        <aside class="toolbar">
+            <div class="brand">
+                <i class="fas fa-magic"></i>
+                <h1>DreamWeaver</h1>
             </div>
 
-            <div class="ai-assistant-panel">
-                <h2>AI Assistant</h2>
-                <div class="button-group">
-                    <button id="generateFullStoryBtn">Generate Full Story</button>
-                    <button id="generatePromptBtn">Generate Prompt Idea</button>
+            <div class="tool-section story-actions-section"> <h3>Your Story</h3>
+                <button id="newStoryBtn" class="btn-story-action btn-primary"> <i class="fas fa-plus"></i> New Story
+                </button>
+                <button id="saveStoryBtn" class="btn-story-action btn-secondary"> <i class="fas fa-save"></i> Save
+                </button>
+                <button id="exportStoryBtn" class="btn-story-action btn-secondary"> <i class="fas fa-file-export"></i> Export
+                </button>
+            </div>
+
+            <div class="tool-section">
+                <h3>Inspiration</h3>
+                <div class="inspiration-cards">
+                    <div class="inspiration-card" data-type="character">
+                        <i class="fas fa-user"></i>
+                        <span>Character</span>
+                    </div>
+                    <div class="inspiration-card" data-type="setting">
+                        <i class="fas fa-mountain"></i>
+                        <span>Setting</span>
+                    </div>
+                    <div class="inspiration-card" data-type="plot">
+                        <i class="fas fa-project-diagram"></i>
+                        <span>Plot Twist</span>
+                    </div>
                 </div>
-                <div class="button-group">
-                    <button id="nextParagraphBtn">Next Paragraph</button>
-                    <button id="plotTwistBtn">Plot Twist</button>
-                    <button id="characterIdeaBtn">Character Idea</button>
-                    <button id="settingDetailBtn">Setting Detail</button>
+            </div>
+
+            <div class="tool-section stats">
+                <div class="stat-item">
+                    <span class="stat-value" id="wordCount">0</span>
+                    <span class="stat-label">Words</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="characterCount">0</span>
+                    <span class="stat-label">Chars</span> </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="readTime">0</span>
+                    <span class="stat-label">Mins</span> </div>
+            </div>
+
+            <div class="theme-toggle">
+                <button id="themeToggleBtn">
+                    <i class="fas fa-moon"></i>
+                    <span>Dark Mode</span>
+                </button>
+            </div>
+        </aside>
+
+        <main class="editor-container">
+            <div class="editor-header">
+                <input type="text" id="storyTitle" placeholder="Untitled Story" class="title-input">
+                <div class="editor-actions">
+                    <button id="formatBtn" class="btn-icon" title="Format Text">
+                        <i class="fas fa-align-left"></i>
+                    </button>
+                    <button id="distractionFreeBtn" class="btn-icon" title="Distraction Free Mode"> <i class="fas fa-expand"></i>
+                    </button>
+                    <button id="toggleAiPanelBtn" class="btn-icon mobile-only" title="Toggle AI Panel">
+                        <i class="fas fa-robot"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="editor-content">
+                <div id="editor" contenteditable="true" data-placeholder="Begin your story here... Let your imagination flow freely."></div>
+            </div>
+        </main>
+
+        <aside class="ai-panel">
+            <div class="ai-header">
+                <h2><i class="fas fa-robot"></i> Story Guide</h2>
+                <div class="ai-controls">
+                    <div class="creativity-control">
+                        <label for="creativitySlider">Creativity</label>
+                        <input type="range" id="creativitySlider" min="0.1" max="1.0" step="0.1" value="0.7">
+                        <span id="creativityValue">0.7</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ai-suggestions">
+                <div class="suggestion-display" id="suggestionDisplay">
+                    <div class="empty-state">
+                        <i class="fas fa-lightbulb"></i>
+                        <p>Ask for inspiration or guidance to enhance your story</p>
+                    </div>
                 </div>
 
-                <div class="ai-suggestions">
-                    <h3>AI Suggestions</h3>
-                    <div id="aiSuggestionDisplay" class="suggestion-area">
-                        <p class="placeholder-text">Suggestions will appear here.</p>
-                    </div>
-                    <button
-                        id="insertSuggestionBtn"
-                        class="insert-button"
-                        style="display: none;"
-                    >
-                        Insert Suggestion
+                <div id="errorDisplay" class="error-message" style="display: none;"></div>
+
+                <div class="ai-actions">
+                    <button id="generateFullStoryBtn" class="btn-primary btn-full-story">
+                        <i class="fas fa-book-open"></i> Generate Full Story
                     </button>
-                    <div
-                        id="loadingIndicator"
-                        class="loading-indicator"
-                        style="display: none;"
-                    >
-                        Generating...
+                    <button id="generateBtn" class="btn-generate">
+                        <i class="fas fa-wand-magic-sparkles"></i> Generate Ideas
+                    </button>
+                    <button id="improveBtn" class="btn-secondary btn-improve"> <i class="fas fa-sparkles"></i> Improve Current
+                    </button>
+                    <div class="suggestion-action-buttons">
+                        <button id="insertSuggestionBtn" class="btn-primary" style="display: none;">
+                            <i class="fas fa-plus"></i> Insert Suggestion
+                        </button>
+                        <button id="regenerateSuggestionBtn" class="btn-secondary" style="display: none;">
+                            <i class="fas fa-redo"></i> Regenerate
+                        </button>
                     </div>
-                    <div
-                        id="errorDisplay"
-                        class="error-display"
-                        style="display: none;"
-                    ></div>
                 </div>
+
+                <div class="ai-quick-actions">
+                    <button class="quick-action" data-action="continue">
+                        <i class="fas fa-arrow-down"></i> Continue
+                    </button>
+                    <button class="quick-action" data-action="describe">
+                        <i class="fas fa-eye"></i> Describe
+                    </button>
+                    <button class="quick-action" data-action="rewrite">
+                        <i class="fas fa-pen-fancy"></i> Rewrite
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <div class="ai-loading" id="aiLoading">
+            <div class="loading-content">
+                <div class="loading-spinner"></div>
+                <p>Weaving your story magic...</p>
             </div>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js" defer></script>
 </body>
 </html>
