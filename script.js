@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // DOM Elements - Corrected IDs based on HTML
     const editor = document.getElementById('editor');
     const storyTitle = document.getElementById('storyTitle');
     const newStoryBtn = document.getElementById('newStoryBtn');
@@ -8,13 +7,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const formatBtn = document.getElementById('formatBtn');
     const distractionFreeBtn = document.getElementById('distractionFreeBtn');
     const themeToggleBtn = document.getElementById('themeToggleBtn');
-    const toggleAiPanelBtn = document.getElementById('toggleAiPanelBtn'); // New button for mobile AI panel
+    const toggleAiPanelBtn = document.getElementById('toggleAiPanelBtn'); 
 
     const inspirationCards = document.querySelectorAll('.inspiration-card');
     const quickActions = document.querySelectorAll('.quick-action');
 
-    // New: "Generate Full Story" button
-    const generateFullStoryBtn = document.getElementById('generateFullStoryBtn'); // Added this line
+
+    const generateFullStoryBtn = document.getElementById('generateFullStoryBtn');
 
     const generateBtn = document.getElementById('generateBtn');
     const improveBtn = document.getElementById('improveBtn');
@@ -31,62 +30,62 @@ document.addEventListener('DOMContentLoaded', () => {
     const creativitySlider = document.getElementById('creativitySlider');
     const creativityValueDisplay = document.getElementById('creativityValue');
 
-    const appContainer = document.querySelector('.app-container'); // Get the main app container
+    const appContainer = document.querySelector('.app-container'); 
 
-    // State
+
     let currentSuggestion = '';
     let lastRequestType = '';
     let lastRequestContext = '';
     let debounceTimer;
 
-    // Constants
-    const WORDS_PER_MINUTE = 200; // Average reading speed
 
-    // Initialize
+    const WORDS_PER_MINUTE = 200;
+
+
     updateCreativityDisplay();
     loadSavedStory();
     setupEventListeners();
-    updateCounters(); // Initial update after loading story
-    loadTheme(); // Load theme on startup
+    updateCounters();
+    loadTheme(); 
 
     function setupEventListeners() {
-        // Story editor events
+
         editor.addEventListener('input', handleEditorInput);
         storyTitle.addEventListener('input', () => {
             localStorage.setItem('dreamweaver_story_title', storyTitle.value);
         });
 
-        // Story actions
+     
         newStoryBtn.addEventListener('click', clearDraft);
         saveStoryBtn.addEventListener('click', saveStoryManually);
         exportStoryBtn.addEventListener('click', downloadStory);
         formatBtn.addEventListener('click', formatText);
 
-        // Distraction Free Button functionality
+ 
         distractionFreeBtn.addEventListener('click', toggleDistractionFreeMode);
 
-        // Theme Toggle functionality
+      
         themeToggleBtn.addEventListener('click', toggleTheme);
 
-        // AI Panel Toggle (mobile-only) functionality
+     
         toggleAiPanelBtn.addEventListener('click', toggleAiPanel);
 
-        // AI action buttons
-        // Event listener for the new "Generate Full Story" button
+        
+       
         if (generateFullStoryBtn) {
             generateFullStoryBtn.addEventListener('click', () => {
-                const context = getStoryContext(); // Use current editor content as prompt for full story
-                sendRequest('full_story', context); // Call with 'full_story' type
+                const context = getStoryContext();
+                sendRequest('full_story', context); 
             });
         }
 
         generateBtn.addEventListener('click', handleGenerateIdeas);
         improveBtn.addEventListener('click', () => sendRequest('improve_current', getStoryContext()));
 
-        // Dynamic inspiration cards
+      
         inspirationCards.forEach(card => {
             card.addEventListener('click', () => {
-                const type = card.dataset.type; // e.g., 'character', 'setting', 'plot'
+                const type = card.dataset.type; 
                 let requestType;
                 let promptSuffix = '';
 
@@ -104,7 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         promptSuffix = 'Suggest an unexpected plot twist for the current story.';
                         break;
                     default:
-                        requestType = 'generate_ideas'; // Fallback
+                        requestType = 'generate_ideas'; 
                         promptSuffix = 'Generate general ideas based on the current story context.';
                 }
                 const context = getStoryContext() + (editor.textContent.trim() ? `\n\n${promptSuffix}` : '');
@@ -112,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // Quick action buttons
+     
         quickActions.forEach(button => {
             button.addEventListener('click', () => {
                 const action = button.dataset.action;
@@ -133,34 +132,34 @@ document.addEventListener('DOMContentLoaded', () => {
                         promptSuffix = 'Rewrite the last paragraph or selected text to make it more engaging, dramatic, or concise.';
                         break;
                     default:
-                        // This case shouldn't be reached if data-action is always one of the above
+                      
                         console.warn('Unknown quick action:', action);
                         return;
                 }
-                // For quick actions, the context is usually the relevant part of the story
+                
                 const context = getStoryContext() + (editor.textContent.trim() ? `\n\n${promptSuffix}` : '');
                 sendRequest(requestType, context);
             });
         });
 
-        // Suggestion actions
+       
         insertSuggestionBtn.addEventListener('click', insertSuggestion);
         regenerateSuggestionBtn.addEventListener('click', regenerateSuggestion);
 
-        // Creativity control
+   
         creativitySlider.addEventListener('input', updateCreativityDisplay);
     }
 
     function handleEditorInput() {
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(() => {
-            saveStory(); // Save automatically on input
+            saveStory(); 
             updateCounters();
-        }, 500); // Debounce to prevent excessive saving
+        }, 500); 
     }
 
     function saveStory() {
-        localStorage.setItem('dreamweaver_story', editor.innerHTML); // Save innerHTML for contenteditable
+        localStorage.setItem('dreamweaver_story', editor.innerHTML); 
         localStorage.setItem('dreamweaver_story_title', storyTitle.value);
     }
 
@@ -168,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const savedStory = localStorage.getItem('dreamweaver_story');
         const savedTitle = localStorage.getItem('dreamweaver_story_title');
         if (savedStory) {
-            editor.innerHTML = savedStory; // Load innerHTML
+            editor.innerHTML = savedStory;
         }
         if (savedTitle) {
             storyTitle.value = savedTitle;
@@ -182,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function downloadStory() {
         const title = storyTitle.value.trim() || 'Untitled Story';
-        const content = editor.innerText; // Use innerText to get plain text
+        const content = editor.innerText;
         const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
@@ -206,10 +205,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function formatText() {
-        // Example: Basic formatting. You might want more sophisticated logic.
-        // For contenteditable, direct manipulation or a rich-text editor library is better.
-        // This is a placeholder for actual formatting logic.
-        // For now, let's just make sure it triggers a visual feedback.
         displayMessage('Text formatting applied!', 'info');
     }
 
@@ -243,14 +238,13 @@ document.addEventListener('DOMContentLoaded', () => {
         aiPanel.classList.toggle('active');
         const isActive = aiPanel.classList.contains('active');
         toggleAiPanelBtn.title = isActive ? 'Hide AI Panel' : 'Show AI Panel';
-        // You might want to change the icon too, e.g., robot vs times
         toggleAiPanelBtn.querySelector('i').className = isActive ? 'fas fa-times' : 'fas fa-robot';
     }
 
 
     function updateCounters() {
-        const text = editor.textContent.trim(); // Use textContent for counts
-        const wordCount = text ? text.split(/\s+/).filter(word => word.length > 0).length : 0; // Filter out empty strings from split
+        const text = editor.textContent.trim();
+        const wordCount = text ? text.split(/\s+/).filter(word => word.length > 0).length : 0;
         const charCount = text.length;
         const readTime = wordCount > 0 ? Math.ceil(wordCount / WORDS_PER_MINUTE) : 0;
 
@@ -264,28 +258,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function getStoryContext() {
-        // Get the last N characters or paragraphs for context
+
         const fullText = editor.textContent.trim();
-        const maxContextLength = 1500; // Limit context sent to AI
+        const maxContextLength = 1500;
         if (fullText.length > maxContextLength) {
-            // Get the last N characters, try to end at a natural break (like end of sentence)
+           
             let context = fullText.substring(fullText.length - maxContextLength);
             const lastPeriodIndex = context.lastIndexOf('.');
             const lastExclamationIndex = context.lastIndexOf('!');
             const lastQuestionIndex = context.lastIndexOf('?');
             const lastBreakIndex = Math.max(lastPeriodIndex, lastExclamationIndex, lastQuestionIndex);
 
-            if (lastBreakIndex > -1 && lastBreakIndex > maxContextLength * 0.75) { // Ensure it's not too far back
+            if (lastBreakIndex > -1 && lastBreakIndex > maxContextLength * 0.75) { 
                 context = context.substring(lastBreakIndex + 1).trim();
             } else {
-                // Fallback to cutting at word boundary if no good sentence end found
+                
                 const lastSpaceIndex = context.lastIndexOf(' ');
                 if (lastSpaceIndex > -1) {
                     context = context.substring(lastSpaceIndex + 1).trim();
                 }
             }
-             if (context.length === 0 && fullText.length > 0) { // If cutting resulted in empty string, just take last part
-                context = fullText.substring(fullText.length - 200).trim(); // Take last 200 chars as minimal context
+             if (context.length === 0 && fullText.length > 0) { 
+                context = fullText.substring(fullText.length - 200).trim(); 
             }
             return context;
         }
@@ -297,8 +291,8 @@ document.addEventListener('DOMContentLoaded', () => {
             aiLoading.classList.add('active');
             suggestionDisplay.classList.add('loading-skeleton');
             disableButtons(true);
-            errorDisplay.style.display = 'none'; // Hide error when loading
-            clearSuggestionDisplay(); // Clear display while loading
+            errorDisplay.style.display = 'none'; 
+            clearSuggestionDisplay(); 
         } else {
             aiLoading.classList.remove('active');
             suggestionDisplay.classList.remove('loading-skeleton');
@@ -308,27 +302,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function disableButtons(disabled) {
         const buttons = [
-            generateFullStoryBtn, // Include the new button
+            generateFullStoryBtn, 
             generateBtn, improveBtn, insertSuggestionBtn, regenerateSuggestionBtn,
             newStoryBtn, saveStoryBtn, exportStoryBtn, formatBtn, distractionFreeBtn,
             themeToggleBtn, toggleAiPanelBtn
         ];
         buttons.forEach(btn => {
-            if (btn) btn.disabled = disabled; // Check if button exists before disabling
+            if (btn) btn.disabled = disabled; 
         });
 
         inspirationCards.forEach(card => card.style.pointerEvents = disabled ? 'none' : 'auto');
         quickActions.forEach(btn => btn.style.pointerEvents = disabled ? 'none' : 'auto');
-        editor.contentEditable = !disabled; // Disable editing during AI request
-        storyTitle.disabled = disabled; // Disable title editing
+        editor.contentEditable = !disabled; 
+        storyTitle.disabled = disabled; 
     }
 
     async function sendRequest(type, context = '') {
         setLoading(true);
-        clearSuggestion(); // Clear previous suggestion text
+        clearSuggestion(); 
 
         lastRequestType = type;
-        lastRequestContext = context; // Store full context, not just last part
+        lastRequestContext = context; 
 
         try {
             const response = await fetch('api_proxy.php', {
@@ -336,7 +330,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
                     type: type,
-                    context: context, // Send the determined context
+                    context: context, 
                     creativity: parseFloat(creativitySlider.value)
                 })
             });
@@ -350,10 +344,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (data.success && data.suggestion) {
                 displaySuggestion(data.suggestion, type);
-                currentSuggestion = data.suggestion; // Store for insert/regenerate
+                currentSuggestion = data.suggestion; 
                 insertSuggestionBtn.style.display = 'inline-flex';
                 regenerateSuggestionBtn.style.display = 'inline-flex';
-                errorDisplay.style.display = 'none'; // Hide error on success
+                errorDisplay.style.display = 'none'; 
             } else {
                 displayError('No suggestion received. Please try again.');
                 insertSuggestionBtn.style.display = 'none';
@@ -380,7 +374,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function formatTypeLabel(type) {
-        // Converts 'next_paragraph' to 'Next Paragraph' etc.
         return type.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
     }
 
@@ -405,19 +398,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function insertSuggestion() {
         if (currentSuggestion) {
-            // Append the suggestion to the editor content
             editor.innerHTML += `\n\n${currentSuggestion}`;
-            // Move cursor to the end
             const range = document.createRange();
             const sel = window.getSelection();
             range.selectNodeContents(editor);
-            range.collapse(false); // collapse to end
+            range.collapse(false); 
             sel.removeAllRanges();
             sel.addRange(range);
             editor.focus();
             updateCounters();
             displayMessage('Suggestion inserted!', 'success');
-            clearSuggestionDisplay(); // Clear suggestion after insertion
+            clearSuggestionDisplay(); 
         }
     }
 
@@ -431,7 +422,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleGenerateIdeas() {
-        // This button will now default to 'generate_ideas' but can be extended
+        
         const context = getStoryContext();
         sendRequest('generate_ideas', context);
     }
@@ -439,7 +430,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function displayError(message) {
         errorDisplay.textContent = message;
         errorDisplay.style.display = 'block';
-        // Clear error after some time if desired
+        
         setTimeout(() => {
             errorDisplay.style.display = 'none';
         }, 5000);
@@ -450,7 +441,7 @@ document.addEventListener('DOMContentLoaded', () => {
         notification.classList.add('format-notification');
         notification.textContent = message;
 
-        // Apply type-specific styling
+       
         if (type === 'success') {
             notification.style.backgroundColor = 'var(--success)';
         } else if (type === 'info') {

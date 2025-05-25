@@ -1,27 +1,26 @@
 <?php
-// Turn off all error reporting for clean JSON output in production
+
 error_reporting(0);
 ini_set('display_errors', 0);
 
-// Set response header
+
 header('Content-Type: application/json');
 
-// Allow CORS - IMPORTANT: Adjust 'Access-Control-Allow-Origin' for production!
-// Replace '*' with your specific frontend domain (e.g., 'https://your-app-domain.com')
+
 header("Access-Control-Allow-Origin: *"); 
-header("Access-Control-Allow-Methods: POST, OPTIONS"); // Add OPTIONS for preflight requests
+header("Access-Control-Allow-Methods: POST, OPTIONS"); 
 header("Access-Control-Allow-Headers: Content-Type");
 
-// Handle preflight OPTIONS request
+
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit;
 }
 
-// Simple session-based rate limiting
+
 session_start();
-$rateLimit = 30; // requests per minute
-$rateLimitWindow = 60; // seconds
+$rateLimit = 30;
+$rateLimitWindow = 60; 
 
 if (!isset($_SESSION['last_request_time'])) {
     $_SESSION['last_request_time'] = time();
@@ -44,18 +43,17 @@ if (!isset($_SESSION['last_request_time'])) {
     }
 }
 
-// Read input JSON from the request body
+
 $input = json_decode(file_get_contents('php://input'), true);
 
-// Check for JSON decoding errors
+
 if (json_last_error() !== JSON_ERROR_NONE) {
     http_response_code(400);
     echo json_encode(['success' => false, 'error' => 'Invalid JSON input: ' . json_last_error_msg()]);
     exit;
 }
 
-// Validate and sanitize input
-// Using trim() instead of FILTER_SANITIZE_STRING (deprecated)
+
 $type = trim($input['type'] ?? '');
 $context = trim($input['context'] ?? '');
 $temperature = filter_var(
@@ -64,7 +62,7 @@ $temperature = filter_var(
     ['options' => ['min_range' => 0.1, 'max_range' => 1.0, 'default' => 0.7]]
 );
 
-// Define valid generation types - IMPORTANT: Added new types from JS!
+
 $validTypes = [
     'full_story',
     'next_paragraph',
@@ -72,10 +70,10 @@ $validTypes = [
     'character_idea',
     'setting_detail',
     'generate_prompt',
-    'generate_ideas',    // Added from JS
-    'describe_scene',    // Added from JS
-    'rewrite_text',      // Added from JS
-    'improve_current'    // Added from JS
+    'generate_ideas',    
+    'describe_scene',    
+    'rewrite_text',      
+    'improve_current'    
 ];
 
 if (!in_array($type, $validTypes)) {
@@ -84,27 +82,25 @@ if (!in_array($type, $validTypes)) {
     exit;
 }
 
-// Your OpenAI API key here.
-// IMPORTANT: For production, load this from an environment variable (e.g., getenv('OPENAI_API_KEY'))
-// or a secure configuration file outside the web root. DO NOT hardcode in production.
-$openaiApiKey = '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'; // This is a placeholder, replace with your actual key or env var
 
-if (empty($openaiApiKey) || $openaiApiKey === 'YOUR_OPENAI_API_KEY') { // Check for empty or placeholder key
+$openaiApiKey = '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'; // This 
+
+if (empty($openaiApiKey) || $openaiApiKey === 'YOUR_OPENAI_API_KEY') {
     http_response_code(500);
     echo json_encode(['success' => false, 'error' => 'OpenAI API key not configured. Please set it in api_proxy.php.']);
     exit;
 }
 
-// Prepare prompt text & max tokens based on type
+
 $promptText = '';
-$maxTokens = 200; // Default max tokens
+$maxTokens = 200; 
 
 switch ($type) {
     case 'full_story':
         $userPrompt = !empty($context) ? $context : "Write a compelling story.";
         $promptText = "Write a complete, engaging story, around 1000 words, based on the following prompt or theme: \"{$userPrompt}\". 
                        Ensure it has a clear beginning, rising action, climax, falling action, and resolution, with character development and a compelling narrative arc.";
-        $maxTokens = 1000; // Aim for 1000 tokens, which is ~750 words for English
+        $maxTokens = 1000;
         break;
 
     case 'next_paragraph':
@@ -137,7 +133,7 @@ switch ($type) {
         break;
 
     case 'generate_ideas':
-        // This type handles a general "generate ideas" prompt from the user
+
         $userPrompt = !empty($context) ? $context : "Generate some creative ideas for a story.";
         $promptText = "Generate a few diverse and creative ideas related to the following general request: \"{$userPrompt}\". Provide short, distinct suggestions.";
         $maxTokens = 300;
@@ -171,9 +167,9 @@ switch ($type) {
         break;
 }
 
-// Setup cURL request to OpenAI
+
 $postData = [
-    'model' => 'gpt-3.5-turbo', // You can change this to 'gpt-4' or other models if you have access
+    'model' => 'gpt-3.5-turbo',
     'messages' => [
         ['role' => 'system', 'content' => 'You are a helpful and creative writing assistant. Provide clear and concise suggestions or continuations for stories.'],
         ['role' => 'user', 'content' => $promptText],
@@ -187,15 +183,15 @@ $postData = [
 
 $ch = curl_init('https://api.openai.com/v1/chat/completions');
 curl_setopt_array($ch, [
-    CURLOPT_RETURNTRANSFER => true, // Return the response as a string
-    CURLOPT_POST => true,           // Set as POST request
-    CURLOPT_POSTFIELDS => json_encode($postData), // Encode data as JSON
+    CURLOPT_RETURNTRANSFER => true, 
+    CURLOPT_POST => true,           
+    CURLOPT_POSTFIELDS => json_encode($postData), 
     CURLOPT_HTTPHEADER => [
         "Content-Type: application/json",
         "Authorization: Bearer {$openaiApiKey}",
     ],
-    CURLOPT_TIMEOUT => 60, // Increased timeout for potentially longer AI responses
-    CURLOPT_CONNECTTIMEOUT => 10, // Timeout for connection
+    CURLOPT_TIMEOUT => 60, 
+    CURLOPT_CONNECTTIMEOUT => 10,
 ]);
 
 $response = curl_exec($ch);
@@ -203,27 +199,27 @@ $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 $curlError = curl_error($ch);
 curl_close($ch);
 
-// Handle cURL errors
+
 if ($response === false) {
     http_response_code(500);
     echo json_encode(['success' => false, 'error' => 'Failed to connect to AI service or cURL error', 'details' => $curlError]);
     exit;
 }
 
-// Handle non-200 HTTP responses from OpenAI
+
 if ($httpCode !== 200) {
-    // Attempt to decode OpenAI's error message if available
+    
     $errorData = json_decode($response, true);
     $errorMessage = 'Unknown AI service error.';
     if (isset($errorData['error']['message'])) {
         $errorMessage = $errorData['error']['message'];
     }
-    http_response_code(502); // Bad Gateway - indicates upstream server error
+    http_response_code(502);
     echo json_encode(['success' => false, 'error' => "AI service returned error: {$errorMessage}", 'http_code' => $httpCode, 'raw_response' => $response]);
     exit;
 }
 
-// Decode the successful response from OpenAI
+
 $data = json_decode($response, true);
 if (!$data) {
     http_response_code(500);
@@ -231,13 +227,13 @@ if (!$data) {
     exit;
 }
 
-// Extract and return the AI's suggestion
+
 if (isset($data['choices'][0]['message']['content'])) {
     $suggestion = trim($data['choices'][0]['message']['content']);
     echo json_encode(['success' => true, 'suggestion' => $suggestion]);
 } else {
-    // Fallback for unexpected response structure
+    
     http_response_code(500);
     echo json_encode(['success' => false, 'error' => 'Unexpected response structure from AI service', 'raw_response' => $data]);
 }
-exit; // Ensure no further output
+exit; 
